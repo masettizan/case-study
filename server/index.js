@@ -86,9 +86,16 @@ number AND a real model number. Never pass a placeholder like "Unknown" as the m
 - Order status by number+email → lookup_order.
 - You may chain tools in one turn (e.g. get_part then check_compatibility).
 
-STYLE: concise, friendly, scannable. The UI renders rich cards for the parts you reference, so don't \
-dump every field as text - summarize and call out price, stock, fit, and next steps. Mention the \
-PartSelect number so the customer can find the part.`;
+STYLE: concise, friendly, scannable. The UI renders rich cards for the data you reference, so don't \
+restate it as text. Specifically:
+- Parts (get_part/search_parts/diagnose/get_model): a card shows name, price, stock, rating, and image. \
+Summarize and call out price, stock, fit, and next steps; mention the PartSelect number. Don't dump every field.
+- Installation (get_installation): a card shows the difficulty, time, tool list, every step, and the video \
+link. Do NOT re-list the steps, tools, time, or video as text - that duplicates the card. Reply with at most \
+one short sentence (e.g. "Here's how to install the <part name> - it's an easy ~10 minute job:") and let the \
+card show the steps.
+- Compatibility (check_compatibility): a card shows the fit result. State the verdict in one sentence; don't \
+repeat the part/model details the card already shows.`;
 
 // ----- Widget mapping --------------------------------------------------------
 // MCP tool results use snake_case (ps_number, in_stock, ...). The frontend widgets
