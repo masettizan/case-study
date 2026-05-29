@@ -1,22 +1,16 @@
-// PartSelect live scraper — turns a part number OR model number into a
-// structured record an agent/MCP tool can consume. This is the real-data
-// counterpart to the mock in server/catalog.js: same field shape, so it drops
-// into server/tools.js as a data source without touching the tool contract.
+// PartSelect live scraper - turns a part number OR model number into a
+// structured record matching the catalog.js field shape, so it drops into the
+// MCP data layer as the `live` backend without touching the tool contract.
 //
-// Why this exists: partselect.com has no public API. Its URLs are predictable
-// so we construct them deterministically, fetch the HTML, and parse the fields
-// the agent reasons over.
+// partselect.com has no public API but predictable URLs, so we build them,
+// fetch the HTML, and parse the fields we need. The site 403s plain server
+// fetches, so fetching is layered: plain fetch() with browser headers first,
+// then Playwright (optional dep) to bypass the 403. Parsing falls back from
+// cheerio to regex if cheerio isn't installed.
 //
-// Reality check: the site returns HTTP 403 to plain server fetches
-// (bot protection). So fetching is layered, best-effort first:
-//   1. plain fetch() with a real browser UA + headers   (cheapest)
-//   2. Playwright headless browser                       (bypasses 403; optional dep)
-// Parsing is layered too: cheerio if installed, else a regex fallback so the
-// script still runs with zero extra deps.
-//
-// Optional deps (install only what you want):
-//   npm i cheerio        # robust HTML parsing (recommended)
-//   npm i playwright && npx playwright install chromium   # 403 bypass
+// Optional deps:
+//   npm i cheerio                                          # robust HTML parsing
+//   npm i playwright && npx playwright install chromium    # 403 bypass
 //
 // CLI:
 //   node server/scraper.js PS11752778
@@ -29,7 +23,7 @@
 
 const BASE = "https://www.partselect.com";
 
-// Realistic browser headers — plain Node fetch with default headers gets 403.
+// Realistic browser headers - plain Node fetch with default headers gets 403.
 const BROWSER_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
@@ -85,7 +79,7 @@ function throttle(fn) {
 }
 
 // ------------------------------------------------------------- fetch strategies
-// Returns { html, finalUrl } or throws. finalUrl reflects redirects — the site
+// Returns { html, finalUrl } or throws. finalUrl reflects redirects - the site
 // 302s search queries straight to the canonical part page, so callers need it.
 // Tries plain fetch first, then Playwright if present (403 bypass).
 async function fetchPage(url) {
@@ -136,7 +130,7 @@ async function fetchWithPlaywright(url, plainStatus) {
   try {
     ({ chromium } = require("playwright"));
   } catch {
-    return null; // optional dep not installed — caller surfaces guidance.
+    return null; // optional dep not installed - caller surfaces guidance.
   }
   if (!_browserPromise) {
     _browserPromise = chromium.launch({ headless: true });
@@ -219,11 +213,11 @@ async function findPartUrl(query) {
   } catch {
     return null;
   }
-  // Redirected straight onto a detail page — best case.
+  // Redirected straight onto a detail page - best case.
   if (/\/PS\d+-[^/?#]+\.htm/i.test(page.finalUrl)) {
     return { url: page.finalUrl.split("?")[0], html: page.html };
   }
-  // Otherwise it's a results list — take the first part link.
+  // Otherwise it's a results list - take the first part link.
   const m = page.html.match(/href="(\/PS\d+-[^"]+?\.htm)"/i);
   if (m) {
     const url = BASE + m[1];
@@ -357,14 +351,14 @@ function parseModel(html, url, mn) {
   const h1 = $ ? clean($("h1").first().text()) : firstMatch(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const description = h1 || null;
 
-  // H1 is "MODEL Brand Appliance - Overview" — brand is the token after the model.
+  // H1 is "MODEL Brand Appliance - Overview" - brand is the token after the model.
   let brand = $ ? clean($('[itemprop="brand"]').first().text()) : null;
   if (!brand && description) {
     const bm = description.match(new RegExp(mn + "\\s+([A-Za-z][\\w-]+)", "i"));
     brand = bm ? bm[1] : null;
   }
 
-  // Parts that fit this model — scan PS detail links, name from slug.
+  // Parts that fit this model - scan PS detail links, name from slug.
   let parts = [];
   const seen = new Set();
   for (const m of html.matchAll(/\/(PS\d+)-[A-Za-z0-9-]+?\.htm/g)) {
@@ -394,9 +388,9 @@ function parseModel(html, url, mn) {
 
 // --------------------------------------------------------- compatibility check
 // Two signals, in order of authority:
-//   1. ?ModelNum= fit badge on the part page — definitive, but
+//   1. ?ModelNum= fit badge on the part page - definitive, but
 //      rendered client-side, so only readable with Playwright.
-//   2. the model's parts index — confirms a fit, but cannot disprove one.
+//   2. the model's parts index - confirms a fit, but cannot disprove one.
 // We never assert "incompatible" from a static crawl; unknown stays unknown.
 async function checkCompatibility(partNumber, modelNumber) {
   const part = await getPart(partNumber);
@@ -408,7 +402,7 @@ async function checkCompatibility(partNumber, modelNumber) {
   // ?ModelNum= (not in static HTML). We read it only when Playwright is present;
   // otherwise we fall back to the model's parts index, which can confirm a fit
   // but cannot rule one out (it lists only featured parts). So we never assert
-  // "incompatible" from a static crawl — we say "unverified" and tell the agent
+  // "incompatible" from a static crawl - we say "unverified" and tell the agent
   // how to confirm. Honesty over a confident guess.
   let badge = null; // true | false | null(unknown)
   try {
@@ -419,11 +413,11 @@ async function checkCompatibility(partNumber, modelNumber) {
       else if (/not compatible|does not fit|isn.t compatible/i.test(pw.html)) badge = false;
     }
   } catch {
-    /* Playwright not available or page error — fall through to index. */
+    /* Playwright not available or page error - fall through to index. */
   }
 
   // Model Cross Reference on the part page lists models this part fits, in
-  // static HTML — a server-readable fit signal (no Playwright needed). A match
+  // static HTML - a server-readable fit signal (no Playwright needed). A match
   // is strong positive evidence; absence isn't proof (the list lazy-loads more).
   const inCrossRef = Array.isArray(part.compatible_models)
     ? part.compatible_models.includes(mn)
@@ -453,7 +447,7 @@ async function checkCompatibility(partNumber, modelNumber) {
     confidence = "high";
     reason = `Site fit badge reports it does not fit ${mn}.`;
   } else {
-    compatible = null; // unverified — do NOT claim incompatible
+    compatible = null; // unverified - do NOT claim incompatible
     confidence = "unverified";
     reason =
       `Could not confirm fit from a static crawl (the verdict is rendered client-side). ` +
@@ -526,7 +520,7 @@ function extractList(html, sectionRe) {
   if (!m) return [];
   return [...m[1].matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)].map((x) => clean(x[1])).filter(Boolean).slice(0, 30);
 }
-// "Part# WPW10546503 replaces these:</div><div ...> AP6022813, W10306646, … </div>"
+// "Part# WPW10546503 replaces these:</div><div ...> AP6022813, W10306646, ... </div>"
 function extractReplaces(html) {
   const m = html.match(/replaces these:\s*<\/div>\s*<div[^>]*>([\s\S]*?)<\/div>/i);
   if (!m) return [];

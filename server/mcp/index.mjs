@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // PartSelect MCP server (stdio).
 //
-// Exposes the doc-11 tool set over the Model Context Protocol so any MCP client
-// (Claude Desktop, the Agent SDK, Cursor, etc.) can drive PartSelect lookups.
+// Exposes the PartSelect tool set over the Model Context Protocol so any MCP
+// client (Claude Desktop, the Agent SDK, Cursor, etc.) can drive PartSelect lookups.
 // Tools are thin wrappers over server/mcp/dataSource.mjs, which serves either
 // the mock catalog or the live scraper (PARTSELECT_DATA=offline|live|auto).
 //
@@ -74,7 +74,7 @@ server.registerTool(
   {
     title: "Get part details",
     description:
-      "Get full details for one part by its PartSelect number (PS…) or manufacturer part " +
+      "Get full details for one part by its PartSelect number (PS...) or manufacturer part " +
       "number. Use when the user references a specific part number.",
     inputSchema: {
       part_number: z.string().describe("PartSelect number (e.g. PS11752778) or manufacturer number."),
@@ -107,7 +107,7 @@ server.registerTool(
       "Get a model record: brand, appliance type, and the parts that fit it. Use to list " +
       "parts for a customer's appliance model. When the customer asks for a specific KIND of " +
       "part (e.g. a 'door' part, 'drain pump', 'rack'), pass part_type so the result is filtered " +
-      "to matching parts only — if it comes back empty, no such part is listed for that model.",
+      "to matching parts only - if it comes back empty, no such part is listed for that model.",
     inputSchema: {
       model_number: z.string().describe("Appliance model number, e.g. WDT780SAEM1."),
       part_type: z
@@ -170,7 +170,7 @@ server.registerTool(
     title: "Look up order (stub)",
     description:
       "Look up order status by order number + email. NOTE: requires an authenticated " +
-      "PartSelect order integration not connected in this demo — returns guidance, never " +
+      "PartSelect order integration not connected in this demo - returns guidance, never " +
       "fabricated order data.",
     inputSchema: {
       order_number: z.string().describe("Customer order number."),
@@ -184,7 +184,7 @@ server.registerTool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  // stderr only — stdout is the protocol channel and must stay clean.
+  // stderr only - stdout is the protocol channel and must stay clean.
   console.error(`[partselect-mcp] ready · data mode: ${data.dataMode()}`);
 }
 

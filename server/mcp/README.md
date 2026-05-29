@@ -1,7 +1,7 @@
 # PartSelect MCP Server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) stdio server that
-exposes the PartSelect tool set to any MCP client — Claude Desktop, the Claude
+exposes the PartSelect tool set to any MCP client - Claude Desktop, the Claude
 Agent SDK, Cursor, etc.
 
 Scope: **refrigerator + dishwasher parts only.**
@@ -10,13 +10,13 @@ Scope: **refrigerator + dishwasher parts only.**
 
 | File | Role |
 |------|------|
-| `index.mjs` | MCP server — registers the 8 tools, wires them to the data layer |
+| `index.mjs` | MCP server - registers the 8 tools, wires them to the data layer |
 | `dataSource.mjs` | Unified data layer over the mock catalog + live scraper |
 | `smoke.mjs` | End-to-end test that drives the server with the MCP client |
 
 It reuses the existing modules unchanged:
-- [`server/catalog.js`](../catalog.js) — mock catalog (offline data)
-- [`server/scraper.js`](../scraper.js) — live partselect.com scraper (fetch → Playwright fallback)
+- [`server/catalog.js`](../catalog.js) - mock catalog (offline data)
+- [`server/scraper.js`](../scraper.js) - live partselect.com scraper (fetch → Playwright fallback)
 
 ## Tools
 
@@ -29,7 +29,7 @@ It reuses the existing modules unchanged:
 | `diagnose` | `symptom`, `appliance_type?`, `model_number?` | Symptom → candidate parts |
 | `get_installation` | `part_number` | Difficulty, time, steps, video |
 | `get_policy` | `topic` (returns/warranty/shipping/contact/order_status) | Policy facts |
-| `lookup_order` | `order_number`, `email` | Order status (stub — needs auth integration) |
+| `lookup_order` | `order_number`, `email` | Order status (stub - needs auth integration) |
 
 ## Data modes
 
@@ -55,7 +55,7 @@ npm run mcp:inspect                 # MCP Inspector UI
 node server/mcp/smoke.mjs           # end-to-end smoke test
 ```
 
-> stdout is the protocol channel — the server logs only to stderr. Don't `console.log` to stdout in tool handlers.
+> stdout is the protocol channel - the server logs only to stderr. Don't `console.log` to stdout in tool handlers.
 
 ## Register in Claude Desktop
 
@@ -79,5 +79,5 @@ node server/mcp/smoke.mjs           # end-to-end smoke test
 chat UI. This MCP server exposes the **same capabilities** over a standard
 protocol so external MCP clients can use them too. Both read the same catalog +
 scraper, so behavior stays consistent. As the project grows, the web backend
-could itself become an MCP client of this server — one tool implementation,
+could itself become an MCP client of this server - one tool implementation,
 many consumers.

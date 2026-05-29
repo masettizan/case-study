@@ -1,8 +1,9 @@
-// Mock PartSelect catalog — Refrigerator + Dishwasher parts only.
+// Mock PartSelect catalog - Refrigerator + Dishwasher parts only.
 // In production this layer would be backed by PartSelect's product DB /
 // search API / a vector store over scraped part pages. The shape here mirrors
 // the fields the agent actually reasons over so the tools/agent code is
-// unchanged when a real data source is swapped in (see server/tools.js).
+// unchanged when a real data source is swapped in. This is the `offline` data
+// backend for the MCP server (see server/mcp/dataSource.mjs).
 
 const PARTS = [
   {

@@ -8,7 +8,7 @@ const SUGGESTIONS = [
   "How can I install part number PS11752778?",
   "Is PS11756150 compatible with my WDT780SAEM1 model?",
   "The ice maker on my Whirlpool fridge is not working. How can I fix it?",
-  "My dishwasher won't drain — what part do I need?",
+  "My dishwasher won't drain - what part do I need?",
 ];
 
 function ChatWindow() {

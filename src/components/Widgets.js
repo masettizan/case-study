@@ -1,6 +1,6 @@
 // Rich inline UI the agent can attach to a message. Each widget type maps to a
-// payload shape emitted by a backend tool handler (server/tools.js). `onAction`
-// lets a card push a follow-up message into the chat (e.g. "Add PS… to cart").
+// payload shape emitted by a backend tool handler (server/index.js). `onAction`
+// lets a card push a follow-up message into the chat (e.g. "Add PS... to cart").
 
 import React from "react";
 

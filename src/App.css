@@ -1,13 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 :root {
-  /* PartSelect-inspired palette */
-  --ps-teal: #1e7b8c;
-  --ps-teal-dark: #0b3a45;
+  /* PartSelect brand palette */
+  --ps-teal: #337778;
+  --ps-teal-dark: #1a4d52;
   --ps-yellow: #f9c81e;
+  --ps-yellow-dark: #e0b000;
+  --ps-yellow-text: #5a4500;
   --ps-bg: #f4f6f7;
-  --ps-border: #e2e8ea;
-  --ps-text: #14252b;
+  --ps-border: #dfe6e7;
+  --ps-text: #1c1c1c;
   --ps-muted: #6b7c82;
 }
 
@@ -32,7 +34,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(90deg, var(--ps-teal-dark), var(--ps-teal));
+  background: #467676;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: space-between;
@@ -46,6 +48,12 @@ body {
   display: flex;
   align-items: baseline;
   gap: 8px;
+}
+
+.brand-mark,
+.brand-sub {
+  font-family: "Myriad Pro", "Myriad Pro Bold", "Myriad", "Inter", sans-serif;
+  font-weight: 700;
 }
 
 .brand-mark {
@@ -67,11 +75,32 @@ body {
   letter-spacing: 1px;
 }
 
+.brand-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .brand-scope {
   color: rgba(255, 255, 255, 0.85);
   font-size: 12px;
   font-weight: 500;
 }
+
+.brand-home {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  background: var(--ps-yellow);
+  color: var(--ps-yellow-text);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.brand-home:hover { background: var(--ps-yellow-dark); }
 
 @media (max-width: 560px) {
   .brand-scope { display: none; }

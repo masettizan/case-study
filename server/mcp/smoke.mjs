@@ -1,5 +1,5 @@
 // Smoke test: spin the MCP server over stdio with the official client and
-// exercise the doc-11 tools end-to-end (offline data). Run: node server/mcp/smoke.mjs
+// exercise the tools end-to-end (offline data). Run: node server/mcp/smoke.mjs
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { fileURLToPath } from "node:url";
@@ -24,7 +24,7 @@ const call = async (name, args) => {
   const r = await client.callTool({ name, arguments: args });
   const text = r.content?.[0]?.text || "";
   console.log(`\n--- ${name}(${JSON.stringify(args)}) ---`);
-  console.log(text.length > 700 ? text.slice(0, 700) + "\n…(truncated)" : text);
+  console.log(text.length > 700 ? text.slice(0, 700) + "\n...(truncated)" : text);
 };
 
 // The three case-study queries + a couple more.
@@ -37,4 +37,4 @@ await call("get_policy", { topic: "returns" });
 await call("lookup_order", { order_number: "PS-123", email: "x@y.com" });
 
 await client.close();
-console.log("\nOK — smoke test passed.");
+console.log("\nOK - smoke test passed.");

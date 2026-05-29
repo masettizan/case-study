@@ -1,24 +1,14 @@
 // PartSelect chat agent backend.
 //
-// Architecture: a single /api/chat endpoint runs an agentic tool-use loop. The
-// LLM backend is chosen by LLM_PROVIDER: a remote OpenAI-compatible server
-// (vLLM, or Gemini's OpenAI endpoint) when an API key is set, otherwise a local
-// Ollama model (qwen3 by default). The model gets a tightly scoped system prompt
-// (refrigerator + dishwasher parts only) and a set of tools.
+// /api/chat runs an agentic tool-use loop. LLM_PROVIDER picks the model: a remote
+// OpenAI-compatible server (vLLM / Gemini) when an API key is set, else local
+// Ollama (qwen3). System prompt is scoped to refrigerator + dishwasher parts.
 //
-// Data comes from the PartSelect MCP server (server/mcp/index.mjs), driven over
-// stdio via server/mcpClient.js. The MCP server serves live partselect.com data
-// (PARTSELECT_DATA=live) with an offline mock-catalog fallback, so the web chat
-// is no longer limited to the 12-row hardcoded catalog. The same MCP server
-// powers external clients (Claude Desktop, Cursor) — one tool implementation,
-// many consumers (see server/mcp/README.md).
+// Tools come from the MCP server (server/mcp/index.mjs) over stdio via
+// server/mcpClient.js. Cart state lives here, not in the MCP server, so
+// add_to_cart / view_cart are handled locally (reading part details via get_part).
 //
-// The cart is the one piece of session state the MCP server doesn't own, so
-// add_to_cart / view_cart are handled locally here (they read part details via
-// the MCP get_part tool).
-//
-// If the configured LLM is unreachable, /api/chat returns a 500 — there is no
-// rule-based fallback.
+// If the configured LLM is unreachable, /api/chat returns 500 (no fallback).
 
 require("dotenv").config();
 const express = require("express");
@@ -45,7 +35,7 @@ const LLM_PROVIDER = (process.env.LLM_PROVIDER || (LLM_API_KEY ? "vllm" : "ollam
 const REMOTE_DEFAULTS = {
   // Gemini's OpenAI-compatible surface. Default to a fast, cheap model.
   gemini: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.0-flash" },
-  // vLLM has no universal default host — set LLM_BASE_URL to your server's /v1.
+  // vLLM has no universal default host - set LLM_BASE_URL to your server's /v1.
   // (Placeholder port 8000 differs from this backend's SERVER_PORT host.)
   vllm: { baseUrl: "http://localhost:8000/v1", model: "Qwen/Qwen2.5-7B-Instruct" },
 };
@@ -60,25 +50,25 @@ and the tasks around them: finding the right part, looking up a part by number, 
 a part fits a specific appliance model, listing the parts for a model, giving installation \
 instructions, troubleshooting appliance symptoms, answering policy questions, and basic cart support.
 
-SCOPE — strict:
+SCOPE - strict:
 - If the user asks about anything outside refrigerator/dishwasher parts and repair (other appliances, \
 general chit-chat, coding, news, math, other retailers, opinions), politely decline in one sentence \
 and steer back to fridge/dishwasher parts. Do NOT answer the off-topic question.
 - Never invent part numbers, prices, compatibility, or specs. Get facts ONLY from tools. If a tool \
-says a part isn't found or a fit can't be verified, say so honestly — never guess "incompatible".
+says a part isn't found or a fit can't be verified, say so honestly - never guess "incompatible".
 
-GROUNDING — critical (do this before answering):
+GROUNDING - critical (do this before answering):
 - Call the tool FIRST, then answer only from what it returned. Never claim a part exists, fits a model, \
 or is "a door/drain/rack/etc. part" unless a tool result actually shows it.
 - When the user asks for a specific KIND of part for a model (e.g. "a door part for model X"), call \
 get_model WITH the part_type argument set to that kind (e.g. part_type:"door"). The tool returns ONLY \
 matching parts. If it returns an empty parts list, tell the customer plainly that no such part is \
-listed for that model — do NOT relabel an unrelated part (a gasket or control panel is not a door part).
+listed for that model - do NOT relabel an unrelated part (a gasket or control panel is not a door part).
 - PRICES & STOCK: state a price or in-stock status for a part ONLY if the tool result includes it for \
-that exact part. If a part has no price in the result, say the price isn't listed — NEVER invent one or \
+that exact part. If a part has no price in the result, say the price isn't listed - NEVER invent one or \
 reuse another part's price.
 
-TOOLS — pick the right one:
+TOOLS - pick the right one:
 - Specific PS/manufacturer number → get_part.
 - "What part do I need for <problem>" / a described symptom → diagnose (or search_parts).
 - "Does part X fit model Y" → check_compatibility. ONLY call this when the user gave BOTH a real part \
@@ -90,11 +80,11 @@ number AND a real model number. Never pass a placeholder like "Unknown" as the m
 - You may chain tools in one turn (e.g. get_part then check_compatibility).
 
 STYLE: concise, friendly, scannable. The UI renders rich cards for the parts you reference, so don't \
-dump every field as text — summarize and call out price, stock, fit, and next steps. Mention the \
+dump every field as text - summarize and call out price, stock, fit, and next steps. Mention the \
 PartSelect number so the customer can find the part.`;
 
 // ----- Widget mapping --------------------------------------------------------
-// MCP tool results use snake_case (ps_number, in_stock, …). The frontend widgets
+// MCP tool results use snake_case (ps_number, in_stock, ...). The frontend widgets
 // (src/components/Widgets.js) expect camelCase. Map between the two here so the
 // MCP contract and the UI contract stay independent.
 function toWidgetPart(p) {

@@ -3,7 +3,7 @@
 // Spawns the PartSelect MCP server (server/mcp/index.mjs) over stdio and exposes
 // its tools to the in-process agent loop (server/index.js). One server
 // implementation, two consumers: this web chat + any external MCP client
-// (Claude Desktop, Cursor, …). See server/mcp/README.md.
+// (Claude Desktop, Cursor, etc.). See server/mcp/README.md.
 //
 // The MCP SDK ships ESM-only, so we load it via dynamic import() from this
 // CommonJS module and cache a single connected client for the process.
@@ -11,7 +11,7 @@
 const path = require("path");
 
 // Default to live data so the web chat sees real partselect.com parts/models,
-// not just the 12-row mock catalog. Override with PARTSELECT_DATA=offline|auto.
+// not just the offline mock catalog. Override with PARTSELECT_DATA=offline|auto.
 const DATA_MODE = process.env.PARTSELECT_DATA || "live";
 const MCP_SERVER = path.join(__dirname, "mcp", "index.mjs");
 

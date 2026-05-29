@@ -135,17 +135,17 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  background: var(--ps-teal);
-  color: #fff;
+  background: var(--ps-yellow);
+  color: var(--ps-yellow-text);
   border: none;
   border-radius: 7px;
   padding: 7px 12px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ps-btn:hover { background: var(--ps-teal-dark); }
+.ps-btn:hover { background: var(--ps-yellow-dark); }
 .ps-btn:disabled { background: #c4d0d3; cursor: not-allowed; }
 .ps-btn.ghost { background: #fff; color: var(--ps-teal); border: 1px solid var(--ps-border); }
 .ps-btn.ghost:hover { border-color: var(--ps-teal); background: #f0f8fa; }

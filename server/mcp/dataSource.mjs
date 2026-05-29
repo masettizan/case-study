@@ -13,14 +13,13 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
-// Existing CommonJS modules — reused as-is, no rewrite.
 const { PARTS } = require("../catalog.js");
 const scraper = require("../scraper.js");
 
 const MODE = (process.env.PARTSELECT_DATA || "offline").toLowerCase();
 const norm = (s) => (s || "").toString().trim().toLowerCase();
 
-// Live search / model pages list parts thin — just ps_number, name, url. Enrich
+// Live search / model pages list parts thin - just ps_number, name, url. Enrich
 // the top N with a full part fetch so callers get price, stock, brand, rating,
 // and image (the fields the UI cards and the agent actually need). Capped to
 // bound latency; the scraper throttles + caches, so repeats are cheap.
@@ -175,8 +174,8 @@ export async function checkCompatibility({ part_number, model_number }) {
 
 // ----------------------------------------------------------- get_model
 // `part_type` (optional) filters the model's parts to those whose name matches a
-// requested kind ("door", "drain pump", …). Filtering happens at the data layer
-// so the agent can't mislabel an unrelated part — if nothing matches, the result
+// requested kind ("door", "drain pump", ...). Filtering happens at the data layer
+// so the agent can't mislabel an unrelated part - if nothing matches, the result
 // is an empty parts list, not a relabeled guess.
 const matchesType = (name, type) => !type || norm(name).includes(norm(type));
 
@@ -274,7 +273,7 @@ const POLICIES = {
       "365-day returns: returns must be received within 365 days of the original ship " +
       "date. Full refund if the part is in resalable condition (no signs of " +
       "installation, scuffs, or damage). The customer pays return shipping unless the " +
-      "return is due to a PartSelect error or the part was lost in shipping — in that " +
+      "return is due to a PartSelect error or the part was lost in shipping - in that " +
       "case contact within 10 business days for a prepaid label and shipping refund. " +
       "Start a return via the Self-Service portal with your order number + email.",
     links: ["https://www.partselect.com/365-Day-Returns.htm"],
