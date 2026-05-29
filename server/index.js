@@ -265,7 +265,7 @@ async function ollamaChat(convo, tools) {
   return data.message; // { role, content, tool_calls? }
 }
 
-async function runOllamaAgent(messages) {
+async function runOllamaAgent(messages, sessionId) {
   const widgets = [];
   const tools = await getOllamaTools();
   // System prompt first, then the user/assistant history.
@@ -295,7 +295,7 @@ async function runOllamaAgent(messages) {
       if (typeof args === "string") {
         try { args = JSON.parse(args); } catch { args = {}; }
       }
-      const out = await runTool(name, args, "default");
+      const out = await runTool(name, args, sessionId);
       if (out._widget) widgets.push(out._widget);
       convo.push({
         role: "tool",
@@ -337,7 +337,7 @@ async function openaiChat(convo, tools) {
   return data.choices?.[0]?.message; // { role, content, tool_calls? }
 }
 
-async function runRemoteAgent(messages) {
+async function runRemoteAgent(messages, sessionId) {
   const widgets = [];
   const tools = await getOllamaTools(); // OpenAI function-tool format; shared.
   const convo = [
@@ -364,7 +364,7 @@ async function runRemoteAgent(messages) {
       if (typeof args === "string") {
         try { args = JSON.parse(args); } catch { args = {}; }
       }
-      const out = await runTool(name, args, "default");
+      const out = await runTool(name, args, sessionId);
       if (out._widget) widgets.push(out._widget);
       convo.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(out.result) });
     }
@@ -381,7 +381,10 @@ app.post("/api/chat", async (req, res) => {
     const messages = Array.isArray(req.body?.messages) ? req.body.messages : [];
     if (!messages.length) return res.status(400).json({ error: "messages required" });
 
-    const result = IS_REMOTE ? await runRemoteAgent(messages) : await runOllamaAgent(messages);
+    // Per-client cart key; fall back to "default" for callers that omit it.
+    const sessionId = (typeof req.body?.sessionId === "string" && req.body.sessionId) || "default";
+
+    const result = IS_REMOTE ? await runRemoteAgent(messages, sessionId) : await runOllamaAgent(messages, sessionId);
     res.json({ role: "assistant", content: result.content, widgets: result.widgets || [] });
   } catch (err) {
     console.error("chat error:", err);

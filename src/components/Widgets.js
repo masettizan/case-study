@@ -35,8 +35,16 @@ function ProductCard({ part, onAction }) {
           {part.inStock != null && <Stock inStock={part.inStock} />}
         </div>
         <div className="ps-card-actions">
+          {part.inStock !== false && (
+            <button
+              className="ps-btn"
+              onClick={() => onAction(`Add ${part.partSelectNumber} to my cart`)}
+            >
+              Add to cart
+            </button>
+          )}
           {part.url && (
-            <a className="ps-btn" href={part.url} target="_blank" rel="noreferrer">
+            <a className="ps-btn ghost" href={part.url} target="_blank" rel="noreferrer">
               View part
             </a>
           )}

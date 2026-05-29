@@ -143,7 +143,8 @@ src/
 ## Notes & trade-offs
 - Offline catalog is mock data with realistic PartSelect numbers/models; live mode
   scrapes the real site (no public API), best-effort with caching and a 403 bypass.
-- Cart/orders are in-memory (single demo session). Checkout is a stub.
+- Cart is in-memory, keyed per session (the frontend sends a stable session id, so
+  each browser tab gets its own cart); swaps cleanly for a DB-backed store. Checkout is a stub.
 - `lookup_order` is a stub: real order status needs an authenticated PartSelect
   integration, so it returns guidance, never fabricated order data.
 - Compatibility answers are honest: if a model isn't in the verified-fit list, the
