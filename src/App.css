@@ -102,6 +102,23 @@ body {
 }
 .brand-home:hover { background: var(--ps-yellow-dark); }
 
+.brand-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.brand-cart:hover { background: rgba(255, 255, 255, 0.22); }
+
 @media (max-width: 560px) {
   .brand-scope { display: none; }
 }

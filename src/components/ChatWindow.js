@@ -11,7 +11,7 @@ const SUGGESTIONS = [
   "My dishwasher won't drain - what part do I need?",
 ];
 
-function ChatWindow() {
+function ChatWindow({ onReady }) {
   const defaultMessage = [
     {
       role: "assistant",
@@ -50,6 +50,12 @@ function ChatWindow() {
     setMessages((prev) => [...prev, reply]);
     setLoading(false);
   };
+
+  // Expose send() to the parent (header "View cart" button) on each render so the
+  // ref always points at the latest closure over messages/loading.
+  useEffect(() => {
+    onReady?.(send);
+  });
 
   return (
     <div className="messages-container">
