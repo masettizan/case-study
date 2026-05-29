@@ -1,70 +1,112 @@
-# Getting Started with Create React App
+# PartSelect Assistant
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A focused chat agent for the **PartSelect** e-commerce site, scoped to
+**refrigerator** and **dishwasher** parts. It helps customers find parts,
+look up a part by number, check whether a part fits their appliance model,
+follow installation steps, troubleshoot symptoms, and manage a cart.
 
-## Available Scripts
+Built for the Instalily case study.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## What it does
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Capability | Example query | How |
+|---|---|---|
+| Part lookup | "How can I install part number **PS11752778**?" | `get_part_details` + `get_installation_guide` |
+| Compatibility | "Is **PS11756150** compatible with my **WDT780SAEM1** model?" | `check_compatibility` |
+| Troubleshooting | "The ice maker on my Whirlpool fridge is not working." | `diagnose_symptom` → likely-cause parts |
+| Search | "My dishwasher won't drain — what part do I need?" | `search_parts` / `diagnose_symptom` |
+| Transactions | "Add PS11722098 to my cart" | `add_to_cart`, `view_cart` |
+| Scope guard | "What's the weather?" | Politely declines, steers back |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The agent renders **rich inline UI** in the chat — product cards (price, stock,
+rating, PS#), a compatibility badge, step-by-step install guides with video
+links, and a live cart — not just text.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Architecture
 
-### `npm run build`
+```
+React (CRA) chat UI ──POST /api/chat──► Express backend
+  ChatWindow + Widgets                    │
+  (product cards, compat,                 ├─ Claude agentic tool-use loop
+   install guide, cart)                   │    (system prompt = strict scope)
+        ▲                                 ├─ tools.js  (search / details /
+        │  { content, widgets[] }         │             compatibility / install /
+        └─────────────────────────────────┤             diagnose / cart)
+                                          └─ catalog.js (mock PartSelect data)
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Agentic loop** ([server/index.js](server/index.js)): each turn sends the full
+conversation + tool schemas to Claude. The model decides which tools to call,
+the backend runs them locally, feeds results back, and loops (up to 6 rounds)
+until the model produces a final answer. Tool handlers also emit `widgets` that
+the frontend renders inline.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Scope is enforced two ways**: a strict system prompt (decline anything outside
+fridge/dishwasher parts) and tools that only ever touch the refrigerator/
+dishwasher catalog. The model is told to get all facts from tools and never
+invent part numbers, prices, or compatibility.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**No-key fallback**: if `ANTHROPIC_API_KEY` is unset, the backend runs a
+deterministic rule-based agent over the same tools, so the app is fully
+demoable without credentials.
 
-### `npm run eject`
+### Extensibility
+- **Swap the data source**: `catalog.js` is the only thing tied to mock data.
+  Replace it with PartSelect's real product API or a vector store over scraped
+  part pages — the tool contracts in `tools.js` don't change.
+- **Add a capability**: add a tool spec + handler in `tools.js` (e.g. order
+  status, return/RMA, warranty). The agent picks it up automatically; add a
+  widget type in `Widgets.js` if it needs rich UI.
+- **Stateful cart/orders**: the in-memory cart in `tools.js` swaps cleanly for a
+  DB-backed store keyed by session/user.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Run it
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm install
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# optional — enables the real Claude agent (otherwise fallback mode runs)
+cp .env.example .env        # then add ANTHROPIC_API_KEY
 
-## Learn More
+npm run dev                 # starts backend (:8000) + frontend (:3000)
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Or run the two processes separately:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run server              # backend on http://localhost:8000
+npm start                   # frontend on http://localhost:3000
+```
 
-### Code Splitting
+Health check: `GET http://localhost:8000/api/health` →
+`{ ok: true, mode: "claude" | "fallback" }`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## Project layout
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+server/
+  index.js     Express app + Claude agentic loop + no-key fallback
+  tools.js     tool schemas + handlers + cart store
+  catalog.js   mock fridge/dishwasher catalog (swap for real data source)
+src/
+  api/api.js          frontend → backend bridge (sends full history)
+  components/
+    ChatWindow.js     chat state, suggestions, typing indicator
+    Widgets.js        product card / compatibility / install / cart UI
+  App.js / App.css    PartSelect-branded shell
+```
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Notes & trade-offs
+- Catalog is mock data with realistic PartSelect numbers/models; production
+  would back the tools with PartSelect's catalog + a retrieval layer.
+- Cart/orders are in-memory (single demo session). Checkout is a stub.
+- Compatibility answers are honest: if a model isn't in the verified-fit list,
+  the agent says so rather than guessing.

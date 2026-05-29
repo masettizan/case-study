@@ -1,12 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
+:root {
+  /* PartSelect-inspired palette */
+  --ps-teal: #1e7b8c;
+  --ps-teal-dark: #0b3a45;
+  --ps-yellow: #f9c81e;
+  --ps-bg: #f4f6f7;
+  --ps-border: #e2e8ea;
+  --ps-text: #14252b;
+  --ps-muted: #6b7c82;
+}
+
 * {
   font-family: "Inter", sans-serif;
   font-size: 14px;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--ps-bg);
 }
 
 .App {
-  background-color: white;
+  background-color: var(--ps-bg);
+  min-height: 100vh;
 }
 
 .heading {
@@ -14,12 +32,47 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(255, 255, 255); 
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, var(--ps-teal-dark), var(--ps-teal));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
-  font-weight: 700;
-  font-size: 16px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   height: 60px;
+  padding: 0 24px;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand-mark {
+  font-weight: 800;
+  font-size: 22px;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.brand-mark::first-letter {
+  color: var(--ps-yellow);
+}
+
+.brand-sub {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ps-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.brand-scope {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .brand-scope { display: none; }
 }

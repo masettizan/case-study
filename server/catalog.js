@@ -1,0 +1,355 @@
+// Mock PartSelect catalog — Refrigerator + Dishwasher parts only.
+// In production this layer would be backed by PartSelect's product DB /
+// search API / a vector store over scraped part pages. The shape here mirrors
+// the fields the agent actually reasons over so the tools/agent code is
+// unchanged when a real data source is swapped in (see server/tools.js).
+
+const PARTS = [
+  {
+    partSelectNumber: "PS11752778",
+    manufacturerPartNumber: "WPW10321304",
+    name: "Refrigerator Door Shelf Bin",
+    brand: "Whirlpool",
+    appliance: "Refrigerator",
+    category: "Shelves & Bins",
+    price: 36.18,
+    inStock: true,
+    rating: 4.8,
+    reviewCount: 1240,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11752778.jpg",
+    description:
+      "Clear plastic door shelf bin for the refrigerator door. Holds jars, " +
+      "bottles, and condiments. Genuine OEM replacement for cracked or broken bins.",
+    symptoms: ["Door bin cracked", "Door bin broken", "Items falling out of door"],
+    difficulty: "Easy",
+    installTimeMins: 10,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11752778",
+    installSteps: [
+      "Open the refrigerator door fully.",
+      "Push up on the bottom of the old door bin to release it from the door rails.",
+      "Tilt the bin out and remove it.",
+      "Line up the new bin with the door rails at the desired height.",
+      "Push down firmly until the bin clicks securely into place.",
+    ],
+    compatibleModels: [
+      "WRS321SDHZ", "WRF535SWHZ", "WRX735SDHZ", "ED5FHEXVS01",
+      "GI6FARXXY06", "WRS325FDAM04", "WRF560SEYM05",
+    ],
+  },
+  {
+    partSelectNumber: "PS11746337",
+    manufacturerPartNumber: "W10300024",
+    name: "Refrigerator Water Inlet Valve",
+    brand: "Whirlpool",
+    appliance: "Refrigerator",
+    category: "Water & Ice",
+    price: 78.45,
+    inStock: true,
+    rating: 4.6,
+    reviewCount: 612,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11746337.jpg",
+    description:
+      "Dual water inlet valve controlling water flow to the ice maker and water " +
+      "dispenser. Replace when the ice maker stops filling or the dispenser runs dry.",
+    symptoms: [
+      "Ice maker not making ice", "No water from dispenser",
+      "Ice maker not filling with water", "Low water flow",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 30,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11746337",
+    installSteps: [
+      "Unplug the refrigerator and shut off the household water supply.",
+      "Pull the fridge away from the wall and remove the rear lower access panel.",
+      "Disconnect the water lines and electrical connectors from the old valve.",
+      "Unscrew the valve bracket and remove the old valve.",
+      "Mount the new valve, reconnect water lines and connectors.",
+      "Restore water and power, then check for leaks and test the dispenser.",
+    ],
+    compatibleModels: [
+      "WRS321SDHZ", "WRX735SDHZ", "GI6FARXXY06", "ED5FHEXVS01", "WRF535SWHZ",
+    ],
+  },
+  {
+    partSelectNumber: "PS12584610",
+    manufacturerPartNumber: "W11130208",
+    name: "Refrigerator Ice Maker Assembly",
+    brand: "Whirlpool",
+    appliance: "Refrigerator",
+    category: "Water & Ice",
+    price: 142.89,
+    inStock: true,
+    rating: 4.5,
+    reviewCount: 388,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS12584610.jpg",
+    description:
+      "Complete ice maker assembly with motor module and mounting hardware. " +
+      "Replace when the ice maker fails to cycle, eject, or produce ice.",
+    symptoms: [
+      "Ice maker not working", "Ice maker not making ice",
+      "Ice maker not ejecting ice", "No ice production",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 25,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS12584610",
+    installSteps: [
+      "Unplug the refrigerator.",
+      "Remove the ice bin from the freezer.",
+      "Disconnect the wiring harness and remove the mounting screws on the old ice maker.",
+      "Lift out the old ice maker assembly.",
+      "Install the new assembly, secure screws, and reconnect the wiring harness.",
+      "Restore power and allow up to 24 hours for the first ice cycle.",
+    ],
+    compatibleModels: ["WRS321SDHZ", "WRX735SDHZ", "WRF535SWHZ", "WRS325FDAM04"],
+  },
+  {
+    partSelectNumber: "PS733947",
+    manufacturerPartNumber: "2198202",
+    name: "Refrigerator Temperature Control Thermostat",
+    brand: "Whirlpool",
+    appliance: "Refrigerator",
+    category: "Thermostats & Controls",
+    price: 54.32,
+    inStock: true,
+    rating: 4.7,
+    reviewCount: 905,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS733947.jpg",
+    description:
+      "Cold control thermostat that regulates compressor cycling. Replace when the " +
+      "fridge is too warm, too cold, or runs constantly.",
+    symptoms: [
+      "Refrigerator too warm", "Refrigerator not cooling",
+      "Refrigerator running constantly", "Refrigerator too cold",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 20,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS733947",
+    installSteps: [
+      "Unplug the refrigerator.",
+      "Remove the temperature control knob and housing cover.",
+      "Disconnect the wires and capillary tube from the old thermostat.",
+      "Install the new thermostat, routing the capillary tube the same way.",
+      "Reconnect wires, reattach the housing, and restore power.",
+    ],
+    compatibleModels: ["ED5FHEXVS01", "GI6FARXXY06", "WRS325FDAM04", "WRF560SEYM05"],
+  },
+  {
+    partSelectNumber: "PS2071928",
+    manufacturerPartNumber: "240534701",
+    name: "Refrigerator Door Gasket / Seal",
+    brand: "Frigidaire",
+    appliance: "Refrigerator",
+    category: "Door & Seals",
+    price: 61.7,
+    inStock: false,
+    rating: 4.4,
+    reviewCount: 274,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS2071928.jpg",
+    description:
+      "Magnetic door gasket that seals the refrigerator door. Replace when the door " +
+      "won't seal, frost builds up, or the unit sweats.",
+    symptoms: [
+      "Door won't seal", "Frost buildup", "Refrigerator sweating",
+      "Door not closing properly",
+    ],
+    difficulty: "Easy",
+    installTimeMins: 15,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS2071928",
+    installSteps: [
+      "Open the door and pull back the edge of the old gasket to expose the retainer screws.",
+      "Loosen (do not fully remove) the retainer screws around the door.",
+      "Pull the old gasket out from behind the retainer.",
+      "Press the new gasket behind the retainer, working around the door.",
+      "Tighten the screws and close the door to check the seal.",
+    ],
+    compatibleModels: ["FFHS2611LWE", "FGHS2631PF4A", "LFSS2612TF0"],
+  },
+
+  // ---------- Dishwasher ----------
+  {
+    partSelectNumber: "PS11756150",
+    manufacturerPartNumber: "W10712395",
+    name: "Dishwasher Lower Dish Rack Wheel Assembly",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Racks & Wheels",
+    price: 24.99,
+    inStock: true,
+    rating: 4.7,
+    reviewCount: 530,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11756150.jpg",
+    description:
+      "Lower rack roller wheel assembly. Replace when the lower rack won't roll " +
+      "smoothly, falls off the track, or sits crooked.",
+    symptoms: [
+      "Lower rack won't roll", "Rack falls off track", "Rack wheels broken",
+    ],
+    difficulty: "Easy",
+    installTimeMins: 10,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11756150",
+    installSteps: [
+      "Open the dishwasher and pull the lower rack all the way out.",
+      "Unclip the old wheel assembly from the rack rail.",
+      "Snap the new wheel assembly onto the rack rail.",
+      "Reinsert the rack and confirm it rolls smoothly.",
+    ],
+    compatibleModels: [
+      "WDT780SAEM1", "WDT750SAHZ0", "WDF520PADM", "WDT730PAHZ0", "KDTM404KPS0",
+    ],
+  },
+  {
+    partSelectNumber: "PS11722098",
+    manufacturerPartNumber: "W10350376",
+    name: "Dishwasher Drain Pump Motor",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Pumps & Motors",
+    price: 89.95,
+    inStock: true,
+    rating: 4.5,
+    reviewCount: 410,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11722098.jpg",
+    description:
+      "Drain pump that pushes wastewater out of the dishwasher. Replace when water " +
+      "won't drain or the dishwasher leaves standing water at the bottom.",
+    symptoms: [
+      "Dishwasher won't drain", "Standing water in bottom",
+      "Dishwasher not draining", "Drain pump humming",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 40,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11722098",
+    installSteps: [
+      "Disconnect power and shut off the water supply to the dishwasher.",
+      "Remove the lower rack and the bottom spray arm and filter.",
+      "Tilt the dishwasher back or access from below to reach the sump area.",
+      "Disconnect the drain hose and electrical connector from the old pump.",
+      "Twist out the old pump, install the new pump, and reconnect hose and wiring.",
+      "Restore water and power, then run a cycle to verify draining.",
+    ],
+    compatibleModels: [
+      "WDT780SAEM1", "WDT750SAHZ0", "WDF520PADM", "KDTM404KPS0",
+    ],
+  },
+  {
+    partSelectNumber: "PS11770107",
+    manufacturerPartNumber: "W10546503",
+    name: "Dishwasher Upper Spray Arm",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Spray Arms",
+    price: 32.4,
+    inStock: true,
+    rating: 4.6,
+    reviewCount: 298,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11770107.jpg",
+    description:
+      "Upper spray arm that distributes water across the top rack. Replace when " +
+      "dishes on the top rack come out dirty or the arm is cracked or clogged.",
+    symptoms: [
+      "Dishes not getting clean", "Top rack not cleaning",
+      "Spray arm cracked", "Spray arm not spinning",
+    ],
+    difficulty: "Easy",
+    installTimeMins: 10,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11770107",
+    installSteps: [
+      "Pull out the upper rack.",
+      "Unthread or unclip the old spray arm from the water feed.",
+      "Attach the new spray arm and confirm it spins freely.",
+      "Reinsert the rack.",
+    ],
+    compatibleModels: ["WDT780SAEM1", "WDT730PAHZ0", "WDF520PADM", "KDTM404KPS0"],
+  },
+  {
+    partSelectNumber: "PS11748977",
+    manufacturerPartNumber: "W10311986",
+    name: "Dishwasher Door Latch Assembly",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Door & Latches",
+    price: 47.83,
+    inStock: true,
+    rating: 4.4,
+    reviewCount: 187,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11748977.jpg",
+    description:
+      "Door latch assembly with switch. Replace when the dishwasher won't start, " +
+      "the door won't stay closed, or the cycle won't begin.",
+    symptoms: [
+      "Dishwasher won't start", "Door won't latch",
+      "Cycle won't begin", "Door pops open",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 25,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11748977",
+    installSteps: [
+      "Disconnect power to the dishwasher.",
+      "Remove the inner door panel screws and separate the panel.",
+      "Disconnect the wiring from the old latch assembly.",
+      "Unscrew and remove the old latch.",
+      "Install the new latch, reconnect wiring, and reassemble the door panel.",
+      "Restore power and test that the door latches and the cycle starts.",
+    ],
+    compatibleModels: ["WDT780SAEM1", "WDT750SAHZ0", "WDT730PAHZ0"],
+  },
+  {
+    partSelectNumber: "PS11745496",
+    manufacturerPartNumber: "W10195677",
+    name: "Dishwasher Silverware Basket",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Racks & Wheels",
+    price: 28.75,
+    inStock: true,
+    rating: 4.8,
+    reviewCount: 1102,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS11745496.jpg",
+    description:
+      "Removable silverware basket with hinged lids. Direct replacement for cracked " +
+      "or broken baskets.",
+    symptoms: ["Silverware basket cracked", "Basket broken", "Lids missing"],
+    difficulty: "Easy",
+    installTimeMins: 2,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS11745496",
+    installSteps: [
+      "Open the dishwasher and remove the old basket.",
+      "Place the new basket in the lower rack.",
+    ],
+    compatibleModels: [
+      "WDT780SAEM1", "WDT750SAHZ0", "WDF520PADM", "WDT730PAHZ0", "KDTM404KPS0",
+    ],
+  },
+  {
+    partSelectNumber: "PS3406971",
+    manufacturerPartNumber: "8531235",
+    name: "Dishwasher Heating Element",
+    brand: "Whirlpool",
+    appliance: "Dishwasher",
+    category: "Heating & Drying",
+    price: 43.6,
+    inStock: true,
+    rating: 4.6,
+    reviewCount: 466,
+    imageUrl: "https://www.partselect.com/assets/images/parts/PS3406971.jpg",
+    description:
+      "Heating element for wash water heating and heated drying. Replace when dishes " +
+      "stay wet after the cycle or water won't heat.",
+    symptoms: [
+      "Dishes not drying", "Water not heating", "Dishes wet after cycle",
+    ],
+    difficulty: "Moderate",
+    installTimeMins: 30,
+    installVideoUrl: "https://www.youtube.com/watch?v=partselect-PS3406971",
+    installSteps: [
+      "Disconnect power to the dishwasher.",
+      "Remove the lower rack and spray arm to expose the heating element.",
+      "From beneath the unit, remove the mounting nuts and disconnect the wiring.",
+      "Lift out the old element and seat the new element through the tub holes.",
+      "Reinstall mounting nuts, reconnect wiring, and restore power.",
+    ],
+    compatibleModels: ["WDT780SAEM1", "WDF520PADM", "WDT730PAHZ0"],
+  },
+];
+
+module.exports = { PARTS };
