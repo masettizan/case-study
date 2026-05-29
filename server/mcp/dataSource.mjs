@@ -220,18 +220,28 @@ export async function diagnose({ symptom, appliance_type, model_number }) {
   // reasons over the catalog. Live lookups confirm price/stock afterward.
   const terms = norm(symptom).split(/\s+/).filter((t) => t.length > 2);
   const mn = norm(model_number);
-  let matches = PARTS.filter((p) => {
+  // Symptom + appliance match is the core of a diagnosis.
+  const base = PARTS.filter((p) => {
     if (appliance_type && norm(p.appliance) !== norm(appliance_type)) return false;
-    if (mn && !(p.compatibleModels || []).some((m) => norm(m) === mn)) return false;
     const hay = norm((p.symptoms || []).join(" ") + " " + p.description);
     return terms.some((t) => hay.includes(t));
   });
+  // model_number is an OPTIONAL narrowing, not a gate. The model fit list often
+  // narrows to a real model, but callers also pass junk here (a brand like
+  // "Whirlpool", "fridge", or a model we don't list). So apply it as a soft
+  // filter: keep the model-fitting subset only if it's non-empty, otherwise fall
+  // back to the full symptom match. A symptom diagnosis should never come back
+  // empty just because a model arg didn't line up.
+  let matches = base;
+  if (mn) {
+    const fit = base.filter((p) => (p.compatibleModels || []).some((m) => norm(m) === mn));
+    if (fit.length) matches = fit;
+  }
   const symScore = (p) => {
     const hay = norm((p.symptoms || []).join(" "));
     return terms.reduce((n, t) => n + (hay.includes(t) ? 1 : 0), 0);
   };
-  matches.sort((a, b) => symScore(b) - symScore(a));
-  matches = matches.slice(0, 4);
+  matches = [...matches].sort((a, b) => symScore(b) - symScore(a)).slice(0, 4);
   return {
     count: matches.length,
     symptom,

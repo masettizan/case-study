@@ -30,9 +30,12 @@ const MAX_TOOL_ROUNDS = 6;
 // are both reached through the SAME OpenAI-compatible /chat/completions client;
 // only base URL, model, and key differ. No key (and no provider) → ollama.
 // If the chosen backend is unreachable, the request errors (no fallback).
-const LLM_API_KEY = process.env.LLM_API_KEY || process.env.GEMINI_API_KEY || "";
+const LLM_API_KEY =
+  process.env.LLM_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.GEMINI_API_KEY || "";
 const LLM_PROVIDER = (process.env.LLM_PROVIDER || (LLM_API_KEY ? "vllm" : "ollama")).toLowerCase();
 const REMOTE_DEFAULTS = {
+  // Anthropic's OpenAI-compatible surface (/v1/chat/completions).
+  claude: { baseUrl: "https://api.anthropic.com/v1", model: "claude-sonnet-4-6" },
   // Gemini's OpenAI-compatible surface. Default to a fast, cheap model.
   gemini: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.0-flash" },
   // vLLM has no universal default host - set LLM_BASE_URL to your server's /v1.
@@ -42,7 +45,7 @@ const REMOTE_DEFAULTS = {
 const REMOTE_CFG = REMOTE_DEFAULTS[LLM_PROVIDER] || REMOTE_DEFAULTS.vllm;
 const LLM_BASE_URL = (process.env.LLM_BASE_URL || REMOTE_CFG.baseUrl).replace(/\/+$/, "");
 const LLM_MODEL = process.env.LLM_MODEL || REMOTE_CFG.model;
-const IS_REMOTE = LLM_PROVIDER === "gemini" || LLM_PROVIDER === "vllm";
+const IS_REMOTE = LLM_PROVIDER === "claude" || LLM_PROVIDER === "gemini" || LLM_PROVIDER === "vllm";
 
 const SYSTEM_PROMPT = `You are the PartSelect Assistant, a focused customer-support agent for the \
 PartSelect e-commerce site. You ONLY help with **refrigerator parts** and **dishwasher parts** \
@@ -60,6 +63,10 @@ says a part isn't found or a fit can't be verified, say so honestly - never gues
 GROUNDING - critical (do this before answering):
 - Call the tool FIRST, then answer only from what it returned. Never claim a part exists, fits a model, \
 or is "a door/drain/rack/etc. part" unless a tool result actually shows it.
+- ANY symptom, problem, or "how do I fix / what part do I need" message is ALWAYS a tool call: call \
+diagnose (or search_parts) BEFORE writing a single word of your answer. NEVER troubleshoot from your own \
+knowledge, and NEVER say no parts are available, unless the tool actually ran and returned an empty list. \
+If you have not yet called a tool this turn, you are not allowed to say a part can't be found.
 - When the user asks for a specific KIND of part for a model (e.g. "a door part for model X"), call \
 get_model WITH the part_type argument set to that kind (e.g. part_type:"door"). The tool returns ONLY \
 matching parts. If it returns an empty parts list, tell the customer plainly that no such part is \
